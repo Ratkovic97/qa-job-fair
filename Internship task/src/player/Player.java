@@ -87,8 +87,10 @@ public class Player {
     }
 
     public void drawCard() {
+        if (deck.size() > 0) {
             Card drawnCard = deck.remove(deck.size() - 1);
-            hand.add(drawnCard); 
+            hand.add(drawnCard);
+        }
     }
 
     public void drawInitialCards() {
