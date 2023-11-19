@@ -1,6 +1,7 @@
 package utility;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cards.*;
@@ -23,7 +24,7 @@ public class Utility {
     for (int i = 0; i < 10; i++) {
         cards.add(new BoostAttackCard()); // Using a higher ID range to distinguish from other cards
     }
-
+    Collections.shuffle(cards);
     return cards;
 }
 }

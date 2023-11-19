@@ -11,21 +11,24 @@ public class Player {
     private List<Card> deck;
     private Card lastPlayedCard;
     private static int initialNumberOfCards = 6;
-    private boolean attackingStatus; 
+    private boolean attackingStatus;
+    private boolean isProtected;
     private int damage;
+    private int damageToTake;
 
     public Player(int health, List<Card> deck) {
         this.health = health;
         this.deck = deck;
         this.hand = new ArrayList<>();
         lastPlayedCard = null;
+        isProtected = false;
         attackingStatus = false;
         damage = 0;
         shuffleDeck();
     }
 
     public void takeDamage(int amountOfDamage){
-        health = amountOfDamage;
+        health = health - amountOfDamage;
     }
 
     public boolean getAttackingStatus(){
@@ -35,13 +38,14 @@ public class Player {
     public void resetAttackingStatus(){
         attackingStatus = false;
     }
+    public void setIsProtected(Boolean isProtected){this.isProtected = isProtected;}
 
     public int getDamage(){
         return damage;
     }
 
     public void resetDamage(){
-        damage = damage;
+        damage = 0;
     }
 
     public int getHealth() {
@@ -67,6 +71,8 @@ public class Player {
     public void shuffleDeck() {
         return;
     }
+
+    public boolean getIsProtected() {return isProtected;}
 
     public void populateDeck(List<Card> cardList) {
         deck.addAll(cardList);
@@ -99,21 +105,32 @@ public class Player {
                 break;
             }
         }
+        if (cardToPlay == null) {
+            System.out.println("Invalid input. Please enter a valid card number or 'end'.");
+        }else if (isProtected && cardNumber == 1) {
+            System.out.println("You are already protected!");
+        }
+        else {
             hand.remove(cardToPlay);
             cardToPlay.effect();
-         
             lastPlayedCard = cardToPlay;
 
-            if(cardToPlay instanceof AttackCard){
+            if (cardToPlay instanceof AttackCard) {
                 attackingStatus = true;
                 damage += cardToPlay.getNumber();
             }
-            if(cardToPlay instanceof BoostAttackCard){
-                attackingStatus = true;
-                damage += ((BoostAttackCard)cardToPlay).getBoost();
+            if (cardToPlay instanceof BoostAttackCard) {
+                attackingStatus = false;
+                damage += ((BoostAttackCard) cardToPlay).getBoost();
             }
-        
-       
+            if (cardToPlay instanceof ProtectCard) {
+                setIsProtected(true);
+            }
+        }
+    }
+
+    public void setDamageToTake(int damage){
+        damageToTake = damage;
     }
 
     public void playCardInDefense(int cardNumber){
@@ -136,13 +153,14 @@ public class Player {
         }
     }
 
-    public boolean checkForProtectionPossibilitiesInHand(Card lastPlayedCard){
+    public boolean checkForProtectionPossibilitiesInHand(){
         for (Card card : hand) {
-            if (card instanceof ProtectCard || card.getNumber() == lastPlayedCard.getNumber()) {
+            if (card instanceof ProtectCard || card.getNumber() == damageToTake) {
+
                 return true;
             }
         }
-        return false;
+        return isProtected;
     }
 
     public boolean findNumberInHand(int number){

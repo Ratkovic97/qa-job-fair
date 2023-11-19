@@ -1,6 +1,8 @@
 package game;
 
 import java.util.Scanner;
+
+import cards.Card;
 import player.*;
 
 
@@ -26,7 +28,7 @@ public class Game {
     }
 
     private boolean hasHealth(Player player){
-        return player.getHealth() != 0;
+        return player.getHealth() > 0;
     }
 
     private boolean isHandEmpty(Player player){
@@ -78,6 +80,7 @@ public class Game {
         currentPlayer.drawCard();
         System.out.println("Health: " + currentPlayer.getHealth() + "\r\n");
         currentPlayer.resetAttackingStatus();
+        currentPlayer.setDamageToTake(opponentPlayer.getDamage());
         currentPlayer.resetDamage();
  
         if(opponentPlayer.getAttackingStatus()){
@@ -101,7 +104,7 @@ public class Game {
                     int cardNumber = Integer.parseInt(input);
                     currentPlayer.playCard(cardNumber);
                     //check if player can play anything else
-                    if(isHandEmpty(currentPlayer)){
+                    if(isHandEmpty(currentPlayer) || currentPlayer.getAttackingStatus()){
                         break;
                     }
             } catch (NumberFormatException e) {
@@ -114,7 +117,12 @@ public class Game {
 
         System.out.println("WOW your opponent's attacking your health points with " + opponentPlayer.getDamage() + " damage!!! \r\n");
 
-        if (currentPlayer.checkForProtectionPossibilitiesInHand(opponentPlayer.getLastPlayedCard())){
+        if (currentPlayer.checkForProtectionPossibilitiesInHand()){
+            if (currentPlayer.getIsProtected()) {
+                currentPlayer.setIsProtected(false);
+                System.out.println("Protect card effect activated!");
+                return;
+            }
            tryToDefend(currentPlayer, opponentPlayer);
         }
         else {
@@ -151,7 +159,7 @@ public class Game {
     
         do {
             input = scanner.nextLine();
-        } while (!input.equalsIgnoreCase("take") && !input.equals("1") && !(input.equals(Integer.toString(opponentDamage)) && currentPlayer.findNumberInHand(Integer.parseInt(input))));
+        } while (!input.equalsIgnoreCase("take") && !input.equals("1") && !(input.equals(Integer.toString(opponentDamage)) && !currentPlayer.findNumberInHand(Integer.parseInt(input))));
     
         return input;
     }
